@@ -155,7 +155,7 @@ function handleMailClick(e: MouseEvent<HTMLAnchorElement>) {
         <div className="mx-auto grid max-w-4xl gap-10 md:grid-cols-2">
             <div>
                 <p className="leading-relaxed text-muted-foreground">
-                    I'm currently open to new opportunities. Whether you have a
+                    I&apos;m currently open to new opportunities. Whether you have a
                     question or just want to say hi, my inbox is always open —
                     or send a message directly using the form.
                 </p>

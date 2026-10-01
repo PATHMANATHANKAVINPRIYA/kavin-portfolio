@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/themeProvider";
@@ -23,6 +23,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f8f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#0d1512" },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -34,10 +41,8 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class">
-          {children}
-        </ThemeProvider>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        <ThemeProvider attribute="class">{children}</ThemeProvider>
       </body>
     </html>
   );

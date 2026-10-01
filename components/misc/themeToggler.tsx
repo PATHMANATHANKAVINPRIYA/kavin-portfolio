@@ -5,13 +5,17 @@ import { SunIcon, MoonIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 
+function useHydrated() {
+  return React.useSyncExternalStore(
+    React.useCallback(() => () => {}, []),
+    () => true,
+    () => false
+  );
+}
+
 export function ModeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useHydrated();
 
   const isDark = resolvedTheme === "dark";
 

@@ -51,23 +51,21 @@ export default function Portfolio() {
   const [resumeOpen, setResumeOpen] = useState(false);
 
   return (
-    <main className="min-h-screen bg-[#0D1512] text-[#ECFDF5] selection:bg-[#A3E635] selection:text-[#0D1512]">
+    <main className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       {/* NAV */}
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0D1512]/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a href="#" className="font-mono text-lg font-semibold tracking-tight">
-            kavin<span className="text-[#A3E635]">.dev</span>
+            kavin<span className="text-primary">.dev</span>
           </a>
 
-          <ModeToggle />
-          
           <nav className="hidden gap-8 md:flex">
             {NAV_LINKS.map((link) =>
               link === "Resume" ? (
                 <button
                   key={link}
                   onClick={() => setResumeOpen(true)}
-                  className="text-sm text-[#8FA396] transition-colors hover:text-[#A3E635]"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   {link}
                 </button>
@@ -75,7 +73,7 @@ export default function Portfolio() {
                 <a
                   key={link}
                   href={`#${link.toLowerCase()}`}
-                  className="text-sm text-[#8FA396] transition-colors hover:text-[#A3E635]"
+                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   {link}
                 </a>
@@ -83,17 +81,21 @@ export default function Portfolio() {
             )}
           </nav>
 
-          <button
-            className="text-[#ECFDF5] md:hidden"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? <X size={22} /> : <Menu size={22} />}
-          </button>
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+
+            <button
+              className="text-foreground md:hidden"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </div>
 
         {menuOpen && (
-          <nav className="flex flex-col gap-4 border-t border-white/5 px-6 py-4 md:hidden">
+          <nav className="flex flex-col gap-4 border-t border-border px-6 py-4 md:hidden">
             {NAV_LINKS.map((link) =>
               link === "Resume" ? (
                 <button
@@ -102,7 +104,7 @@ export default function Portfolio() {
                     setMenuOpen(false);
                     setResumeOpen(true);
                   }}
-                  className="text-left text-sm text-[#8FA396] hover:text-[#A3E635]"
+                  className="text-left text-sm text-muted-foreground hover:text-primary"
                 >
                   {link}
                 </button>
@@ -110,7 +112,7 @@ export default function Portfolio() {
                 <a
                   key={link}
                   href={`#${link.toLowerCase()}`}
-                  className="text-sm text-[#8FA396] hover:text-[#A3E635]"
+                  className="text-sm text-muted-foreground hover:text-primary"
                   onClick={() => setMenuOpen(false)}
                 >
                   {link}
@@ -156,8 +158,8 @@ export default function Portfolio() {
         <Contact/>
       </SectionWrapper>
 
-      <footer className="border-t border-white/5 py-8 text-center">
-        <p className="font-mono text-xs text-[#8FA396]">
+      <footer className="border-t border-border py-8 text-center">
+        <p className="font-mono text-xs text-muted-foreground">
           Built by Pathmanathan Kavin Priya — {new Date().getFullYear()}
         </p>
       </footer>
@@ -172,22 +174,22 @@ function ResumeModal({ open, onClose }: { open: boolean; onClose: () => void }) 
 
   return (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="flex h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg border border-white/10 bg-[#0D1512]"
+        className="flex h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-lg border border-border bg-surface"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
-          <h3 className="font-mono text-sm text-[#A3E635]">Resume Preview</h3>
+        <div className="flex items-center justify-between border-b border-border bg-surface px-5 py-4">
+          <h3 className="font-mono text-sm text-primary">Resume Preview</h3>
           <div className="flex items-center gap-3">
             <a
               href={SOCIAL_LINKS.resume}
               target="_blank"
               rel="noopener noreferrer"
               download
-              className="flex items-center gap-2 rounded-md bg-[#A3E635] px-4 py-2 text-xs font-medium text-[#0D1512] transition-opacity hover:opacity-90"
+              className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90"
             >
               <Download size={14} />
               Download
@@ -195,14 +197,14 @@ function ResumeModal({ open, onClose }: { open: boolean; onClose: () => void }) 
             <button
               onClick={onClose}
               aria-label="Close"
-              className="text-[#8FA396] transition-colors hover:text-[#ECFDF5]"
+              className="text-muted-foreground transition-colors hover:text-foreground"
             >
               <X size={20} />
             </button>
           </div>
         </div>
 
-        <div className="flex-1 bg-[#16241E]">
+        <div className="flex-1 bg-muted">
           <iframe
             src={RESUME_PREVIEW_URL}
             title="Resume Preview"
@@ -233,9 +235,9 @@ function SectionWrapper({
   return (
     <section id={id} className="mx-auto max-w-6xl px-6 py-20">
       <div className="mb-10 flex items-center gap-3">
-        <span className="font-mono text-[#A3E635]">{number}.</span>
-        <h2 className="text-2xl font-bold text-[#ECFDF5]">{title}</h2>
-        <div className="ml-4 h-px flex-1 bg-white/10" />
+        <span className="font-mono text-primary">{number}.</span>
+        <h2 className="text-2xl font-bold text-foreground">{title}</h2>
+        <div className="ml-4 h-px flex-1 bg-border" />
       </div>
       {children}
     </section>

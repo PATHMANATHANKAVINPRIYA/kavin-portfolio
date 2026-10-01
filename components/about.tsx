@@ -24,11 +24,11 @@ function InfoCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-white/5 bg-[#16241E] p-4">
-      <div className="mt-0.5 text-[#A3E635]">{icon}</div>
+    <div className="flex items-start gap-3 rounded-lg border border-border bg-surface p-4">
+      <div className="mt-0.5 text-primary">{icon}</div>
       <div>
-        <p className="font-mono text-xs text-[#8FA396]">{label}</p>
-        <p className="text-sm text-[#ECFDF5]">{children}</p>
+        <p className="font-mono text-xs text-muted-foreground">{label}</p>
+        <p className="text-sm text-surface-foreground">{children}</p>
       </div>
     </div>
   );
@@ -37,7 +37,7 @@ export default function hero(){
     return(
         <div className="grid gap-10 md:grid-cols-3">
           <div className="md:col-span-2">
-            <p className="leading-relaxed text-[#A6B3AC]">
+            <p className="leading-relaxed text-muted-foreground">
               I am a positive and confident Full-Stack Developer with a
               strong passion for building modern web applications. Known for
               my practical approach and problem-solving mindset, I perform

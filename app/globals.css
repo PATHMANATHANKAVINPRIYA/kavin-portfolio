@@ -1,24 +1,89 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-ring: var(--ring);
 }
 
 :root {
-  --background: #fff;
-  --foreground: #171717;
+  --background: #f6f8f6;
+  --foreground: #0d1512;
+
+  --muted: #e9eeea;
+  --muted-foreground: #4d5f54;
+
+  --surface: #ffffff;
+  --surface-foreground: #0d1512;
+
+  --accent: #a3e635;
+  --accent-foreground: #16241e;
+
+  --border: rgba(13, 21, 18, 0.1);
+  --input: rgba(13, 21, 18, 0.06);
+
+  --primary: #a3e635;
+  --primary-foreground: #16241e;
+
+  --secondary: #e9eeea;
+  --secondary-foreground: #0d1512;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --ring: rgba(132, 204, 22, 0.55);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #0d1512;
+  --foreground: #ecfdf5;
+
+  --muted: #16241e;
+  --muted-foreground: #8fa396;
+
+  --surface: #16241e;
+  --surface-foreground: #ecfdf5;
+
+  --accent: #a3e635;
+  --accent-foreground: #0d1512;
+
+  --border: rgba(236, 253, 245, 0.1);
+  --input: rgba(236, 253, 245, 0.06);
+
+  --primary: #a3e635;
+  --primary-foreground: #0d1512;
+
+  --secondary: #16241e;
+  --secondary-foreground: #ecfdf5;
+
+  --destructive: #f87171;
+  --destructive-foreground: #0d1512;
+
+  --ring: rgba(163, 230, 53, 0.6);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }

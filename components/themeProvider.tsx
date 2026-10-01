@@ -5,12 +5,17 @@ import { ReactNode } from "react";
 
 interface ThemeProviderProps {
   children: ReactNode;
-  attribute?: Attribute; // <- use Attribute type
+  attribute?: Attribute;
 }
 
 export function ThemeProvider({ children, attribute }: ThemeProviderProps) {
   return (
-    <NextThemesProvider attribute={attribute || "class"}>
+    <NextThemesProvider
+      attribute={attribute || "class"}
+      defaultTheme="dark"
+      enableSystem
+      disableTransitionOnChange
+    >
       {children}
     </NextThemesProvider>
   );
