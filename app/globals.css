@@ -25,6 +25,11 @@
   --color-ring: var(--ring);
 }
 
+html,
+body {
+  overflow-x: clip;
+}
+
 :root {
   --background: #f6f8f6;
   --foreground: #0d1512;

@@ -1,6 +1,6 @@
 "use client";
 
-import {  useState, } from "react";
+import { useState, useEffect } from "react";
 import {
   Download,
   Menu,
@@ -49,12 +49,26 @@ const RESUME_PREVIEW_URL = `https://drive.google.com/file/d/${RESUME_FILE_ID}/pr
 export default function Portfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [resumeOpen, setResumeOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      setScrollProgress((scrollTop / (scrollHeight - clientHeight)) * 100);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
     <main className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       {/* NAV */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+      <header className="relative sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <div
+            className="absolute bottom-0 left-0 h-[2px] bg-primary transition-all duration-100"
+            style={{ width: `${scrollProgress}%` }}
+          />
           <a href="#" className="font-mono text-lg font-semibold tracking-tight">
             kavin<span className="text-primary">.dev</span>
           </a>
@@ -124,7 +138,7 @@ export default function Portfolio() {
       </header>
 
       {/* HERO */}
-      <section className="mx-auto flex max-w-6xl flex-col items-start px-6 py-24 md:py-32">
+      <section className="mt-5">
         <Hero/>
       </section>
 
