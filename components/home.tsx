@@ -1,6 +1,6 @@
 "use client"
 
-import { MouseEvent, CSSProperties } from "react";
+import { MouseEvent, CSSProperties, useEffect, useState } from "react";
 import Image from "next/image";
 import type { IconType } from "react-icons";
 import { FaGithub, FaLinkedin, FaInstagram, FaFacebook, FaWhatsapp } from "react-icons/fa";
@@ -19,7 +19,7 @@ import {
   SiGit,
   SiGithubactions,
 } from "react-icons/si";
-import { Mail } from "lucide-react";
+import { ArrowRight, Mail } from "lucide-react";
 
 const SOCIAL_LINKS = {
   email: "pathmanathankavinpriya@gmail.com",
@@ -32,6 +32,36 @@ const SOCIAL_LINKS = {
   whatsapp: "https://wa.me/94769893182",
   facebook: "https://web.facebook.com/people/Kavin-Kavin/pfbid02jAipsB86sF5o3F2xMZhB8UANEqDrmBVjbp1HvLxfwWupcemAu8tNHyVU4sC2Mknhl/",
 };
+
+/** Roles shown by the typing effect. The description and tagline change with the role. */
+const ROLES = [
+  {
+    title: "Full-Stack Developer",
+    description:
+      "I enjoy turning ideas into modern, scalable web applications — from responsive frontends to robust backends and deployment pipelines.",
+    tagline: "I build things for the web.",
+  },
+  {
+    title: "UI/UX Designer",
+    description:
+      "I design clean, intuitive interfaces that feel great to use — with clear layouts, smooth interactions and accessible experiences.",
+    tagline: "I design things people enjoy using.",
+  },
+  {
+    title: "Frontend Developer",
+    description:
+      "I build fast, responsive interfaces with React, Next.js and Tailwind CSS, turning designs into polished, interactive experiences.",
+    tagline: "I bring interfaces to life.",
+  },
+  {
+    title: "Backend Developer",
+    description:
+      "I build reliable APIs and data layers with Laravel and Node.js, backed by MySQL and PostgreSQL and shipped with Docker and CI/CD.",
+    tagline: "I power what happens behind the screen.",
+  },
+];
+
+const ROLE_TITLES = ROLES.map((r) => r.title);
 
 function handleMailClick(e: MouseEvent<HTMLAnchorElement>) {
   e.preventDefault();
@@ -64,7 +94,7 @@ function handleMailClick(e: MouseEvent<HTMLAnchorElement>) {
 }
 
 const iconClass =
-  "text-muted-foreground transition-colors hover:text-primary";
+  "text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:text-primary";
 
 function SocialIcons() {
   return (
@@ -92,6 +122,96 @@ function SocialIcons() {
       <a href={SOCIAL_LINKS.whatsapp} target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="Whatsapp">
         <FaWhatsapp size={20} />
       </a>
+    </>
+  );
+}
+
+/* ---------- Typing effect: types a role, deletes it letter by letter, then the next ---------- */
+
+type Phase = "hold" | "deleting" | "typing";
+
+function useTypewriter(words: string[], typeSpeed = 80, deleteSpeed = 40, hold = 1800) {
+  const [index, setIndex] = useState(0);
+  const [text, setText] = useState(words[0]); // full first role on first paint
+  const [phase, setPhase] = useState<Phase>("hold");
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (reduced) return;
+    let t: ReturnType<typeof setTimeout>;
+
+    if (phase === "hold") {
+      t = setTimeout(() => setPhase("deleting"), hold);
+    } else if (phase === "deleting") {
+      if (text.length > 0) {
+        t = setTimeout(() => setText(text.slice(0, -1)), deleteSpeed);
+      } else {
+        t = setTimeout(() => {
+          setIndex((i) => (i + 1) % words.length);
+          setPhase("typing");
+        }, 300);
+      }
+    } else {
+      const word = words[index];
+      if (text.length < word.length) {
+        t = setTimeout(() => setText(word.slice(0, text.length + 1)), typeSpeed);
+      } else {
+        t = setTimeout(() => setPhase("hold"), 0);
+      }
+    }
+
+    return () => clearTimeout(t);
+  }, [text, phase, index, reduced, words, typeSpeed, deleteSpeed, hold]);
+
+  return { text, index, phase, reduced };
+}
+
+function RoleTitle({ text, index, phase }: { text: string; index: number; phase: Phase }) {
+  // Split on the *target* role so the colours stay steady while typing:
+  // everything before the last word is white, the last word is green.
+  const target = ROLE_TITLES[index];
+  const splitAt = target.lastIndexOf(" ") + 1;
+  const head = text.slice(0, Math.min(text.length, splitAt));
+  const tail = text.length > splitAt ? text.slice(splitAt) : "";
+  const steady = phase === "hold";
+
+  const caret = <span className={`hero-caret ${steady ? "hero-caret-blink" : ""}`} />;
+
+  return (
+    <>
+      <h2 className="text-3xl font-bold leading-[1.1] tracking-tight text-foreground md:text-4xl">
+        <span className="sr-only">{ROLE_TITLES.join(", ")}</span>
+        <span aria-hidden="true" className="block min-h-[2.2em]">
+          <span className="block">
+            {head}
+            {!tail && caret}
+          </span>
+          <span className="block text-primary">
+            {tail}
+            {tail && caret}
+          </span>
+        </span>
+      </h2>
+
+      {/* Role indicator */}
+      <div aria-hidden="true" className="mt-4 flex justify-center gap-2 lg:justify-start">
+        {ROLE_TITLES.map((role, i) => (
+          <span
+            key={role}
+            className={`h-1 rounded-full transition-all duration-500 ${
+              i === index ? "w-8 bg-primary" : "w-3 bg-border"
+            }`}
+          />
+        ))}
+      </div>
     </>
   );
 }
@@ -183,6 +303,10 @@ function HeroBackground() {
 /* ---------- Hero ---------- */
 
 export default function Hero() {
+  const typing = useTypewriter(ROLE_TITLES);
+  // Text fades out while a role is being deleted and fades in with the next one
+  const isActive = (i: number) => i === typing.index && typing.phase !== "deleting";
+
   return (
     <div className="relative mx-auto w-full max-w-6xl">
       <style>{`
@@ -194,10 +318,58 @@ export default function Hero() {
           0%, 100% { opacity: 0.6; transform: scale(1); }
           50%      { opacity: 1;   transform: scale(1.12); }
         }
+        @keyframes hero-rise {
+          from { opacity: 0; transform: translate3d(0, 24px, 0); }
+          to   { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        @keyframes hero-pop {
+          from { opacity: 0; transform: scale(0.94); }
+          to   { opacity: 1; transform: scale(1); }
+        }
+        @keyframes hero-fade {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes hero-blink {
+          0%, 49%   { opacity: 1; }
+          50%, 100% { opacity: 0; }
+        }
+        @keyframes hero-bob {
+          0%, 100% { transform: translate3d(0, 0, 0); }
+          50%      { transform: translate3d(0, -10px, 0); }
+        }
+        @keyframes hero-outline {
+          0%, 100% { transform: translate3d(12px, 12px, 0); }
+          50%      { transform: translate3d(6px, 6px, 0); }
+        }
+        @keyframes hero-orbit {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes hero-orbit-rev {
+          to { transform: rotate(-360deg); }
+        }
+        .hero-bob     { animation: hero-bob 6s ease-in-out infinite; }
+        .hero-outline { transform: translate3d(12px, 12px, 0); animation: hero-outline 6s ease-in-out infinite; }
+        .hero-orbit     { animation: hero-orbit 30s linear infinite; }
+        .hero-orbit-rev { animation: hero-orbit-rev 30s linear infinite; }
         .hero-float { animation: hero-float ease-in-out infinite; will-change: transform; }
         .hero-glow  { animation: hero-glow 10s ease-in-out infinite; }
+        .hero-rise  { animation: hero-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+        .hero-pop   { animation: hero-pop 1s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+        .hero-fade  { animation: hero-fade 1s ease-out both; }
+        .hero-caret {
+          display: inline-block;
+          width: 3px;
+          height: 0.85em;
+          margin-left: 4px;
+          vertical-align: baseline;
+          border-radius: 1px;
+          background: currentColor;
+        }
+        .hero-caret-blink { animation: hero-blink 1s step-end infinite; }
         @media (prefers-reduced-motion: reduce) {
-          .hero-float, .hero-glow { animation: none; }
+          .hero-float, .hero-glow, .hero-rise, .hero-pop, .hero-fade, .hero-caret-blink,
+          .hero-bob, .hero-outline, .hero-orbit, .hero-orbit-rev { animation: none; }
         }
       `}</style>
 
@@ -205,32 +377,64 @@ export default function Hero() {
 
       <div className="relative z-10 grid items-center gap-10 lg:min-h-[480px] lg:grid-cols-[1fr_320px_1fr] lg:gap-14">
         {/* Social rail (desktop only), pinned to the far left so the photo stays truly centered */}
-        <div className="absolute left-0 top-[60%] hidden -translate-y-1/2 flex-col items-center gap-5 lg:flex">
+        <div
+          className="hero-fade absolute left-0 top-[60%] hidden -translate-y-1/2 flex-col items-center gap-5 lg:flex"
+          style={{ animationDelay: "0.8s" }}
+        >
           <SocialIcons />
           <span className="mt-2 h-24 w-px bg-border" />
         </div>
 
         {/* LEFT: name + short description */}
-        <div className="order-2 text-center lg:order-none lg:pl-16 lg:text-right">
+        <div
+          className="hero-rise order-2 text-center lg:order-none lg:pl-16 lg:text-right"
+          style={{ animationDelay: "0.2s" }}
+        >
           <p className="mb-3 font-mono text-sm text-primary">Hi, my name is</p>
           <h1 className="text-4xl font-bold leading-[1.1] tracking-tight text-foreground md:text-5xl lg:text-4xl xl:text-[2.6rem]">
             Pathmanathan
             <br />
             Kavin Priya.
           </h1>
-          <p className="mx-auto mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground lg:ml-auto lg:mr-0">
-            I enjoy turning ideas into modern, scalable web applications — from
-            responsive frontends to robust backends and deployment pipelines.
-          </p>
+          {/* All descriptions share one grid cell, so the height never jumps */}
+          <div className="mx-auto mt-5 grid max-w-sm lg:ml-auto lg:mr-0">
+            {ROLES.map((role, i) => (
+              <p
+                key={role.title}
+                aria-hidden={!isActive(i)}
+                className={`col-start-1 row-start-1 text-sm leading-relaxed text-muted-foreground transition-all duration-500 ease-out ${
+                  isActive(i) ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                }`}
+              >
+                {role.description}
+              </p>
+            ))}
+          </div>
         </div>
 
-        {/* CENTER: photo */}
-        <div className="order-1 flex justify-center lg:order-none">
-          <div className="relative h-64 w-64 sm:h-72 sm:w-72 lg:h-80 lg:w-80">
+        {/* CENTER: photo (floats, with an orbiting ring of tech icons) */}
+        <div className="hero-pop order-1 flex justify-center lg:order-none">
+          <div className="hero-bob relative h-64 w-64 sm:h-72 sm:w-72 lg:h-80 lg:w-80">
+            {/* orbit ring, sits behind the photo */}
+            <div aria-hidden="true" className="hero-orbit absolute -inset-8 hidden rounded-full border border-dashed border-primary/25 sm:block">
+              {[
+                { Icon: SiReact,      pos: "left-1/2 top-0 -translate-x-1/2 -translate-y-1/2" },
+                { Icon: SiNodedotjs,  pos: "left-full top-1/2 -translate-x-1/2 -translate-y-1/2" },
+                { Icon: SiTypescript, pos: "left-1/2 top-full -translate-x-1/2 -translate-y-1/2" },
+                { Icon: SiLaravel,    pos: "left-0 top-1/2 -translate-x-1/2 -translate-y-1/2" },
+              ].map(({ Icon, pos }, i) => (
+                <span key={i} className={`absolute ${pos}`}>
+                  <span className="hero-orbit-rev flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-primary shadow-md">
+                    <Icon size={16} />
+                  </span>
+                </span>
+              ))}
+            </div>
+
             {/* glow behind photo */}
             <div className="absolute -inset-6 rounded-full bg-primary/15 blur-3xl" />
-            {/* offset outline */}
-            <div className="absolute inset-0 translate-x-3 translate-y-3 rounded-2xl border-2 border-primary" />
+            {/* offset outline, gently breathes */}
+            <div className="hero-outline absolute inset-0 rounded-2xl border-2 border-primary" />
             <div className="relative h-full w-full overflow-hidden rounded-2xl bg-muted">
               <Image
                 src="/my.jpg"
@@ -244,35 +448,52 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* RIGHT: position + buttons */}
-        <div className="order-3 text-center lg:order-none lg:pl-4 lg:text-left">
-          <h2 className="text-3xl font-bold leading-[1.1] tracking-tight text-foreground md:text-4xl">
-            Full-Stack
-            <br />
-            <span className="text-primary">Developer</span>
-          </h2>
-          <p className="mt-3 text-sm text-muted-foreground">
-            I build things for the web.
-          </p>
+        {/* RIGHT: typing roles + buttons */}
+        <div
+          className="hero-rise order-3 text-center lg:order-none lg:pl-4 lg:text-left"
+          style={{ animationDelay: "0.4s" }}
+        >
+          <RoleTitle text={typing.text} index={typing.index} phase={typing.phase} />
+
+          <div className="mt-4 grid">
+            {ROLES.map((role, i) => (
+              <p
+                key={role.title}
+                aria-hidden={!isActive(i)}
+                className={`col-start-1 row-start-1 text-sm text-muted-foreground transition-all duration-500 ease-out ${
+                  isActive(i) ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
+                }`}
+              >
+                {role.tagline}
+              </p>
+            ))}
+          </div>
 
           <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
             <a
               href="#projects"
-              className="rounded-md border border-primary px-5 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10"
+              className="rounded-md border border-primary px-5 py-2.5 text-sm font-medium text-primary transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary/10"
             >
               View My Work
             </a>
             <a
               href="#contact"
-              className="rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              className="group inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all duration-300 hover:-translate-y-0.5 hover:opacity-90 hover:shadow-lg hover:shadow-primary/25"
             >
               Get In Touch
+              <ArrowRight
+                size={16}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
             </a>
           </div>
         </div>
 
         {/* Social icons for mobile/tablet */}
-        <div className="order-4 flex justify-center gap-5 lg:hidden">
+        <div
+          className="hero-fade order-4 flex justify-center gap-5 lg:hidden"
+          style={{ animationDelay: "0.8s" }}
+        >
           <SocialIcons />
         </div>
       </div>
