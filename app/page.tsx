@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Hero from "@/components/home";
 import About from "@/components/about"
+import Education from "@/components/education"
 import Skils from "@/components/skils"
 import Projects from "@/components/projects";
 import Experiance from "@/components/experiance";
@@ -20,12 +21,13 @@ import { ModeToggle } from "@/components/misc/themeToggler";
 
 const NAV_LINKS = [
   "About",
+  "Education",
   "Skills",
   "Projects",
   "Experience",
   "Certifications",
-  "Resume",
   "Contact",
+  "Resume",
 ];
 
 const SOCIAL_LINKS = {
@@ -147,28 +149,33 @@ export default function Portfolio() {
         <About/>
       </SectionWrapper>
 
+        {/*EDUCATION*/}
+      <SectionWrapper id="education" title="Education" number="02">
+        <Education/>
+      </SectionWrapper>
+
       {/* SKILLS */}
-      <SectionWrapper id="skills" title="Skills" number="02">
+      <SectionWrapper id="skills" title="Skills" number="03">
         <Skils/>
       </SectionWrapper>
 
       {/* PROJECTS */}
-      <SectionWrapper id="projects" title="Projects" number="03">
+      <SectionWrapper id="projects" title="Projects" number="04">
         <Projects/>
       </SectionWrapper>
 
       {/* EXPERIENCE */}
-      <SectionWrapper id="experience" title="Experience" number="04">
+      <SectionWrapper id="experience" title="Experience" number="05">
         <Experiance/>
       </SectionWrapper>
 
       {/* CERTIFICATIONS */}
-      <SectionWrapper id="certifications" title="Certifications" number="05">
+      <SectionWrapper id="certifications" title="Certifications" number="06">
         <Certification/>
       </SectionWrapper>
 
       {/* CONTACT */}
-      <SectionWrapper id="contact" title="Get In Touch" number="06">
+      <SectionWrapper id="contact" title="Get In Touch" number="07">
         <Contact/>
       </SectionWrapper>
 
