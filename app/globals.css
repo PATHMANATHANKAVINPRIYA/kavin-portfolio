@@ -30,6 +30,10 @@ body {
   overflow-x: clip;
 }
 
+html[data-loader="off"] [data-global-loader] {
+  display: none;
+}
+
 :root {
   --background: #f6f8f6;
   --foreground: #0d1512;

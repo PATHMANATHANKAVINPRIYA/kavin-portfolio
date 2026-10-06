@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/themeProvider";
 import { SiteProvider } from "@/components/site-provider";
 import { TopNav } from "@/components/top-nav";
 import Footer from "@/components/footer";
+import GlobalLoader from "@/components/global-loader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,7 +45,15 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{if(sessionStorage.getItem("global-loader-played")==="1")document.documentElement.setAttribute("data-loader","off")}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <GlobalLoader />
         <ThemeProvider attribute="class">
           <SiteProvider>
             <TopNav />
