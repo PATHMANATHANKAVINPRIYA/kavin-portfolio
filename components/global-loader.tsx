@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useState, useEffect } from "react";
+import Image from "next/image";
 
 const STORAGE_KEY = "global-loader-played";
 const DURATION = 2500;
@@ -8,7 +9,6 @@ const FADE_DURATION = 600;
 
 export default function GlobalLoader() {
   const [phase, setPhase] = useState<"visible" | "fading" | "hidden">("visible");
-  const [progress, setProgress] = useState(0);
 
   useLayoutEffect(() => {
     let alreadyPlayed = false;
@@ -34,78 +34,50 @@ export default function GlobalLoader() {
 
   useEffect(() => {
     if (phase !== "visible") return;
-
-    const start = performance.now();
-    let raf: number;
-
-    const tick = (now: number) => {
-      const elapsed = now - start;
-      const pct = Math.min(100, Math.round((elapsed / DURATION) * 100));
-      setProgress(pct);
-
-      if (pct < 100) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        document.body.style.overflow = "";
-        setPhase("fading");
-        setTimeout(() => setPhase("hidden"), FADE_DURATION);
-      }
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    const timer = setTimeout(() => {
+      document.body.style.overflow = "";
+      setPhase("fading");
+      setTimeout(() => setPhase("hidden"), FADE_DURATION);
+    }, DURATION);
+    return () => clearTimeout(timer);
   }, [phase]);
 
   if (phase === "hidden") return null;
-
-  const radius = 54;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (progress / 100) * circumference;
 
   return (
     <div
       data-global-loader
       aria-hidden
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-500 ${
+      className={`fixed inset-0 z-[100] flex items-center justify-center bg-black transition-opacity duration-500 ${
         phase === "fading" ? "opacity-0" : "opacity-100"
       }`}
     >
-      {/* Spinning ring */}
-      <div className="relative flex items-center justify-center">
-        <svg width="140" height="140" className="-rotate-90">
-          {/* track */}
+      <div className="relative flex items-center justify-center w-56 h-56">
+        {/* Spinning ring */}
+        <svg className="absolute inset-0 animate-spin" viewBox="0 0 224 224" fill="none">
+          <circle cx="112" cy="112" r="104" stroke="#1a2e1a" strokeWidth="8" />
           <circle
-            cx="70" cy="70" r={radius}
-            fill="none"
-            stroke="#1a2e1a"
-            strokeWidth="8"
-          />
-          {/* progress arc */}
-          <circle
-            cx="70" cy="70" r={radius}
-            fill="none"
+            cx="112" cy="112" r="104"
             stroke="#a3e635"
             strokeWidth="8"
             strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            style={{ transition: "stroke-dashoffset 0.05s linear" }}
+            strokeDasharray="653"
+            strokeDashoffset="490"
           />
         </svg>
 
-        {/* percentage in center */}
-        <span
-          className="absolute text-2xl font-bold tabular-nums"
-          style={{ color: "#a3e635" }}
-        >
-          {progress}%
-        </span>
+        {/* GIF in center */}
+        <div className="rounded-full bg-white/10 p-1">
+          <Image
+            src="/loading.gif"
+            alt="loading"
+            width={160}
+            height={160}
+            className="rounded-full object-contain"
+            unoptimized
+          />
+        </div>
       </div>
-
-      {/* label */}
-      <p className="mt-4 text-sm tracking-widest uppercase text-white/50">
-        Loading
-      </p>
     </div>
   );
 }
