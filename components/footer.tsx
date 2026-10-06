@@ -96,16 +96,16 @@ function NavColumn({
   onResume: () => void;
 }) {
   return (
-    <div>
+    <div className="min-w-0">
       <h5 className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70">
         {heading}
       </h5>
       <ul className="mt-3 space-y-3">
         {links.map((link) => {
           const cls =
-            "group inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground";
+            "group inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground";
           const arrow = (
-            <span className="h-px w-0 bg-primary transition-all duration-300 group-hover:w-4" />
+            <span className="mr-0 h-px w-0 bg-primary transition-all duration-300 group-hover:mr-2 group-hover:w-4" />
           );
           return (
             <li key={link}>
@@ -200,10 +200,11 @@ export default function Footer() {
       </div>
 
       <div ref={ref} className="relative z-10 mx-auto max-w-6xl px-6 pb-1 pt-10">
-        <div className="grid gap-10 sm:grid-cols-2 sm:gap-12 lg:grid-cols-[1.4fr_1fr_1fr]">
+        {/* FIX 1: explicit grid-cols-1 so the column can shrink below content width */}
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-12 lg:grid-cols-[1.4fr_1fr_1fr]">
           <div
             {...rise(0)}
-            className={`${rise(0).className} flex flex-col items-center sm:col-span-2 md:items-start lg:col-span-1`}
+            className={`${rise(0).className} flex min-w-0 flex-col items-center sm:col-span-2 md:items-start lg:col-span-1`}
           >
             <div className="-my-3">
               <Logo size={160} />
@@ -229,7 +230,8 @@ export default function Footer() {
             </div>
           </div>
 
-          <div {...rise(120)}>
+          {/* FIX 2: min-w-0 on grid children */}
+          <div {...rise(120)} className={`${rise(120).className} min-w-0`}>
             <h4 className="font-mono text-xs uppercase tracking-widest text-primary">Navigate</h4>
             <div className="mt-5 grid grid-cols-2 gap-x-6">
               <NavColumn heading="Sections" links={FOOTER_SECTION_LINKS} onResume={openResume} />
@@ -237,7 +239,7 @@ export default function Footer() {
             </div>
           </div>
 
-          <div {...rise(240)}>
+          <div {...rise(240)} className={`${rise(240).className} min-w-0`}>
             <h4 className="font-mono text-xs uppercase tracking-widest text-primary">
               Let&apos;s talk
             </h4>
@@ -269,15 +271,15 @@ export default function Footer() {
         </div>
 
         <div
-          className={`mt-10 flex flex-col items-center justify-between gap-5 border-t border-border pt-6 sm:flex-row sm:mt-14 ${bottomBarRise.className}`}
+          className={`mt-10 flex flex-col items-center gap-4 border-t border-border pt-6 sm:mt-14 sm:flex-row sm:justify-between ${bottomBarRise.className}`}
           style={bottomBarRise.style}
         >
-          <div className="text-center sm:text-left">
-            <p className="font-mono text-xs text-muted-foreground">
-              © {new Date().getFullYear()} Pathmanathan Kavin Priya. All rights reserved.
-            </p>
+          <p className="text-center font-mono text-xs text-muted-foreground sm:text-left">
+            © {new Date().getFullYear()} Pathmanathan Kavin Priya. All rights reserved.
+          </p>
+          <div className="flex justify-center">
+            <BackToTop progress={scrollProgress} />
           </div>
-          <BackToTop progress={scrollProgress} />
         </div>
       </div>
     </footer>
