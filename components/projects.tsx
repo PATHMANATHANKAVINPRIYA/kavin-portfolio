@@ -29,7 +29,7 @@ const PROJECTS = [
   },
 ];
 
-export default function hero(){
+export default function Projects() {
     return(
         <div className="grid gap-6 md:grid-cols-3">
           {PROJECTS.map((project) => (

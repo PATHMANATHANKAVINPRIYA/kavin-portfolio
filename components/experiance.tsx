@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, type ComponentType, type RefObject } from "react"
-import { ExternalLink, Mail, Webhook, Workflow } from "lucide-react"
+import { ExternalLink, Webhook, Workflow } from "lucide-react"
 import {
   SiDocker,
   SiGit,
@@ -18,6 +18,8 @@ import {
   SiTypescript,
   SiVercel,
 } from "react-icons/si"
+
+import { useReveal } from "@/lib/hooks"
 
 type TechIcon = ComponentType<{ size?: number; className?: string }>
 
@@ -81,35 +83,6 @@ const EXPERIENCE: Job[] = [
   },
 ]
 
-/** True once, the first time the element scrolls into view. */
-function useReveal<T extends HTMLElement>() {
-  const ref = useRef<T>(null)
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    if (typeof IntersectionObserver === "undefined") {
-      setVisible(true)
-      return
-    }
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true)
-          io.disconnect()
-        }
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" }
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [])
-
-  return { ref, visible }
-}
-
-/** 0 → 1 as the timeline scrolls through the viewport. */
 function useScrollProgress(ref: RefObject<HTMLElement | null>) {
   const [progress, setProgress] = useState(0)
 
@@ -154,12 +127,14 @@ function CurrentBadge() {
 }
 
 function ExperienceItem({ job }: { job: Job }) {
-  const { ref, visible } = useReveal<HTMLDivElement>()
+  const { ref, visible } = useReveal<HTMLDivElement>({
+    threshold: 0.15,
+    rootMargin: "0px 0px -8% 0px",
+  })
   const host = new URL(job.website).hostname.replace(/^www\./, "")
 
   return (
     <div ref={ref} className="relative pl-8 md:pl-10">
-      {/* Timeline dot */}
       <span
         aria-hidden
         className={`absolute -left-[5px] top-[30px] flex h-2.5 w-2.5 transition-all duration-500 motion-reduce:transition-none ${
@@ -173,7 +148,6 @@ function ExperienceItem({ job }: { job: Job }) {
         <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-background" />
       </span>
 
-      {/* Card */}
       <div
         className={`group relative overflow-hidden rounded-xl border border-border bg-surface p-6 transition-all duration-700 ease-out hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 motion-reduce:transition-none md:grid md:grid-cols-[17rem_1fr] md:gap-x-10 md:gap-y-6 md:p-8 ${
           visible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
@@ -184,7 +158,6 @@ function ExperienceItem({ job }: { job: Job }) {
           className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-primary/70 via-primary/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         />
 
-        {/* Left: who / when */}
         <div>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <p className="font-mono text-xs text-muted-foreground">{job.period}</p>
@@ -204,7 +177,6 @@ function ExperienceItem({ job }: { job: Job }) {
           <p className="mt-0.5 font-mono text-xs text-muted-foreground">{host}</p>
         </div>
 
-        {/* Right: what */}
         <div className="mt-5 md:mt-0">
           <ul className="space-y-2.5">
             {job.points.map((point, i) => (
@@ -226,7 +198,6 @@ function ExperienceItem({ job }: { job: Job }) {
           </ul>
         </div>
 
-        {/* Technologies: full-width row under both columns */}
         <div
           className={`mt-6 border-t border-border pt-5 transition-all duration-500 ease-out motion-reduce:transition-none md:col-span-2 md:mt-0 ${
             visible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
@@ -253,30 +224,15 @@ function ExperienceItem({ job }: { job: Job }) {
   )
 }
 
-export default function Experience({ showHeading = true }: { showHeading?: boolean }) {
+export default function Experience() {
   const timelineRef = useRef<HTMLDivElement>(null)
   const progress = useScrollProgress(timelineRef)
-  const heading = useReveal<HTMLDivElement>()
 
   return (
-    // Full-page section: fills the viewport height and centres its content
-    <section id="experience" className="flex min-h-screen w-full items-center">
+    <section className="flex min-h-screen w-full items-center">
       <div className="mx-auto w-full max-w-5xl px-6">
-        {showHeading && (
-          <div
-            ref={heading.ref}
-            className={`mb-12 transition-all duration-700 ease-out motion-reduce:transition-none ${
-              heading.visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-            }`}
-          >
-            <h2 className="mt-2 text-3xl font-bold text-foreground md:text-4xl">Where I've worked</h2>
-          </div>
-        )}
-
         <div ref={timelineRef} className="relative space-y-8 md:space-y-10">
-          {/* Track */}
           <span aria-hidden className="absolute bottom-0 left-0 top-0 w-px bg-border" />
-          {/* Fill follows scroll */}
           <span
             aria-hidden
             className="absolute left-0 top-0 w-px bg-primary shadow-[0_0_8px] shadow-primary/60 motion-reduce:hidden"

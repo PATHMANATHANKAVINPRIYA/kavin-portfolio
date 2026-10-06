@@ -1,21 +1,19 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Image from "next/image"
 import { Award, Check, Copy, ExternalLink, FileText, ShieldCheck, X } from "lucide-react"
 
 type Certification = {
   title: string
   issuer: string
   issuedDate?: string
-  /** Full PDF opened on click (put in /public/certificates) */
   pdf?: string
   verifyUrl?: string
   verifyCode?: string
-  /** Shows a "Pending" badge instead of the certificate */
   pending?: boolean
 }
 
-/** One shared image used on every card (put in /public/certificates) */
 const CARD_IMAGE = "/certificates/certificate-top.jpg"
 
 const VERIFY_URL = "https://open.uom.lk/verify"
@@ -40,10 +38,6 @@ const CERTIFICATIONS: Certification[] = [
     title: "Web Development",
     issuer: "University of Moratuwa, Sri Lanka (Online Learning)",
     pending: true,
-    // When you receive it, remove `pending` and add:
-    // pdf: "/certificates/Web_Development_E-Certificate.pdf",
-    // verifyUrl: VERIFY_URL,
-    // verifyCode: "",
   },
 ]
 
@@ -56,7 +50,6 @@ function CopyCode({ code }: { code: string }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 1800)
     } catch {
-      /* clipboard unavailable */
     }
   }
 
@@ -145,7 +138,6 @@ function PdfModal({ cert, onClose }: { cert: Certification; onClose: () => void 
           </div>
         )}
 
-        {/* Some mobile browsers can't render PDFs in an iframe, so "Open in new tab" above is the fallback */}
         <iframe
           src={`${cert.pdf}#toolbar=0&navpanes=0`}
           title={`${cert.title} certificate PDF`}
@@ -170,7 +162,6 @@ export default function Certifications() {
               key={cert.title}
               className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface transition-colors hover:border-primary/40"
             >
-              {/* Shared certificate image */}
               <button
                 type="button"
                 onClick={() => setActive(cert)}
@@ -178,16 +169,15 @@ export default function Certifications() {
                 className="group relative block aspect-[1964/563] w-full overflow-hidden border-b border-border bg-[#f9f7f1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary enabled:cursor-zoom-in disabled:cursor-default"
                 aria-label={canOpen ? `View ${cert.title} certificate` : cert.title}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={CARD_IMAGE}
                   alt="University of Moratuwa certificate"
-                  loading="lazy"
+                  fill
+                  sizes="(min-width: 768px) 33vw, 100vw"
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                 />
               </button>
 
-              {/* Details */}
               <div className="flex flex-1 items-start gap-3 p-5">
                 <Award className="mt-0.5 shrink-0 text-primary" size={20} />
                 <div className="min-w-0 flex-1">
@@ -206,7 +196,6 @@ export default function Certifications() {
                 </div>
               </div>
 
-              {/* Actions */}
               {canOpen && (
                 <div className="flex items-center justify-end border-t border-border px-5 py-3 text-xs">
                   <button

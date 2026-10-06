@@ -22,8 +22,6 @@ const buttonVariants = cva(
         shoe: "text-white bg-gradient-to-r from-fuchsia-600 to-fuchsia-500 dark:from-fuchsia-800 dark:to-fuchsia-700 hover:opacity-80 dark:hover:opacity-90 transition",
         shoesecondary:
           "text-white font-semibold bg-gradient-to-r from-fuchsia-600 to-fuchsia-500 dark:bg-gradient-to-r dark:from-fuchsia-700 dark:to-fuchsia-800 hover:opacity-90 transition",
-        // hostructive:
-        //   "text-white font-semibold bg-red-500 dark:bg-red-800 hover:opacity-90 transition",
         expired:
           "text-white font-semibold bg-red-500 dark:bg-red-800 hover:opacity-90 transition",
         upcoming:

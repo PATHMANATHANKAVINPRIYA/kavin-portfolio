@@ -1,9 +1,8 @@
 "use client"
 
-import { MouseEvent, CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, useEffect, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import type { IconType } from "react-icons";
-import { FaGithub, FaLinkedin, FaInstagram, FaFacebook, FaWhatsapp } from "react-icons/fa";
 import {
   SiNextdotjs,
   SiReact,
@@ -19,21 +18,10 @@ import {
   SiGit,
   SiGithubactions,
 } from "react-icons/si";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-const SOCIAL_LINKS = {
-  email: "pathmanathankavinpriya@gmail.com",
-  github: "https://github.com/PATHMANATHANKAVINPRIYA",
-  linkedin:
-    "https://www.linkedin.com/in/pathmanathan-kavin-priya-33628b23a/?originalSubdomain=lk",
-  resume:
-    "https://drive.google.com/file/d/1YamJMqmySLokoJ8wLCbHKyNFTU46jpw5/view?usp=drive_link",
-  instagram: "https://instagram.com/kavinpriya_0429",
-  whatsapp: "https://wa.me/94769893182",
-  facebook: "https://web.facebook.com/people/Kavin-Kavin/pfbid02jAipsB86sF5o3F2xMZhB8UANEqDrmBVjbp1HvLxfwWupcemAu8tNHyVU4sC2Mknhl/",
-};
+import { SocialLinks } from "@/components/social-links";
 
-/** Roles shown by the typing effect. The description and tagline change with the role. */
 const ROLES = [
   {
     title: "Full-Stack Developer",
@@ -63,86 +51,27 @@ const ROLES = [
 
 const ROLE_TITLES = ROLES.map((r) => r.title);
 
-function handleMailClick(e: MouseEvent<HTMLAnchorElement>) {
-  e.preventDefault();
-
-  let handedOff = false;
-  const markHandedOff = () => {
-    handedOff = true;
-  };
-  window.addEventListener("blur", markHandedOff, { once: true });
-  document.addEventListener(
-    "visibilitychange",
-    () => {
-      if (document.hidden) markHandedOff();
-    },
-    { once: true }
-  );
-
-  window.location.href = `mailto:${SOCIAL_LINKS.email}`;
-
-  setTimeout(() => {
-    window.removeEventListener("blur", markHandedOff);
-    if (!handedOff) {
-      window.open(
-        `https://mail.google.com/mail/?view=cm&fs=1&to=${SOCIAL_LINKS.email}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    }
-  }, 1200);
-}
-
-const iconClass =
-  "text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:text-primary";
-
-function SocialIcons() {
-  return (
-    <>
-      <a
-        href={`mailto:${SOCIAL_LINKS.email}`}
-        onClick={handleMailClick}
-        className={iconClass}
-        aria-label="Email"
-      >
-        <Mail size={20} />
-      </a>
-      <a href={SOCIAL_LINKS.github} target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="GitHub">
-        <FaGithub size={20} />
-      </a>
-      <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="LinkedIn">
-        <FaLinkedin size={20} />
-      </a>
-      <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="Instagram">
-        <FaInstagram size={20} />
-      </a>
-      <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="Facebook">
-        <FaFacebook size={20} />
-      </a>
-      <a href={SOCIAL_LINKS.whatsapp} target="_blank" rel="noopener noreferrer" className={iconClass} aria-label="Whatsapp">
-        <FaWhatsapp size={20} />
-      </a>
-    </>
-  );
-}
-
-/* ---------- Typing effect: types a role, deletes it letter by letter, then the next ---------- */
-
 type Phase = "hold" | "deleting" | "typing";
+
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+
+function useReducedMotion() {
+  return useSyncExternalStore(
+    (onChange) => {
+      const mq = window.matchMedia(REDUCED_MOTION_QUERY);
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+    () => false
+  );
+}
 
 function useTypewriter(words: string[], typeSpeed = 80, deleteSpeed = 40, hold = 1800) {
   const [index, setIndex] = useState(0);
-  const [text, setText] = useState(words[0]); // full first role on first paint
+  const [text, setText] = useState(words[0]);
   const [phase, setPhase] = useState<Phase>("hold");
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const onChange = () => setReduced(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     if (reduced) return;
@@ -175,8 +104,6 @@ function useTypewriter(words: string[], typeSpeed = 80, deleteSpeed = 40, hold =
 }
 
 function RoleTitle({ text, index, phase }: { text: string; index: number; phase: Phase }) {
-  // Split on the *target* role so the colours stay steady while typing:
-  // everything before the last word is white, the last word is green.
   const target = ROLE_TITLES[index];
   const splitAt = target.lastIndexOf(" ") + 1;
   const head = text.slice(0, Math.min(text.length, splitAt));
@@ -201,7 +128,6 @@ function RoleTitle({ text, index, phase }: { text: string; index: number; phase:
         </span>
       </h2>
 
-      {/* Role indicator */}
       <div aria-hidden="true" className="mt-4 flex justify-center gap-2 lg:justify-start">
         {ROLE_TITLES.map((role, i) => (
           <span
@@ -216,19 +142,17 @@ function RoleTitle({ text, index, phase }: { text: string; index: number; phase:
   );
 }
 
-/* ---------- Background: floating tech icons ---------- */
-
 type FloatingIcon = {
   Icon: IconType;
   top: string;
   left: string;
   size: number;
-  duration: number; // seconds
-  delay: number; // seconds
-  dx: number; // drift px
+  duration: number;
+  delay: number;
+  dx: number;
   dy: number;
-  rot: number; // deg
-  mobile?: boolean; // show on small screens too
+  rot: number;
+  mobile?: boolean;
 };
 
 const FLOATING_ICONS: FloatingIcon[] = [
@@ -253,7 +177,6 @@ function HeroBackground() {
       aria-hidden="true"
       className="pointer-events-none absolute inset-y-[-5rem] left-1/2 w-screen -translate-x-1/2 overflow-hidden"
     >
-      {/* dotted grid, faded toward the edges */}
       <div
         className="absolute inset-0 text-primary opacity-[0.14]"
         style={{
@@ -266,14 +189,12 @@ function HeroBackground() {
         }}
       />
 
-      {/* soft glow blobs */}
       <div className="hero-glow absolute left-[12%] top-[18%] h-72 w-72 rounded-full bg-primary/20 blur-3xl" />
       <div
         className="hero-glow absolute bottom-[8%] right-[10%] h-80 w-80 rounded-full bg-primary/15 blur-3xl"
         style={{ animationDelay: "-4s" }}
       />
 
-      {/* floating tech icons */}
       {FLOATING_ICONS.map(
         ({ Icon, top, left, size, duration, delay, dx, dy, rot, mobile }, i) => (
           <span
@@ -300,11 +221,8 @@ function HeroBackground() {
   );
 }
 
-/* ---------- Hero ---------- */
-
 export default function Hero() {
   const typing = useTypewriter(ROLE_TITLES);
-  // Text fades out while a role is being deleted and fades in with the next one
   const isActive = (i: number) => i === typing.index && typing.phase !== "deleting";
 
   return (
@@ -376,16 +294,14 @@ export default function Hero() {
       <HeroBackground />
 
       <div className="relative z-10 grid items-center gap-10 lg:min-h-[480px] lg:grid-cols-[1fr_320px_1fr] lg:gap-14">
-        {/* Social rail (desktop only), pinned to the far left so the photo stays truly centered */}
         <div
           className="hero-fade absolute left-0 top-[60%] hidden -translate-y-1/2 flex-col items-center gap-5 lg:flex"
           style={{ animationDelay: "0.8s" }}
         >
-          <SocialIcons />
+          <SocialLinks className="text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:text-primary" />
           <span className="mt-2 h-24 w-px bg-border" />
         </div>
 
-        {/* LEFT: name + short description */}
         <div
           className="hero-rise order-2 text-center lg:order-none lg:pl-16 lg:text-right"
           style={{ animationDelay: "0.2s" }}
@@ -396,7 +312,6 @@ export default function Hero() {
             <br />
             Kavin Priya.
           </h1>
-          {/* All descriptions share one grid cell, so the height never jumps */}
           <div className="mx-auto mt-5 grid max-w-sm lg:ml-auto lg:mr-0">
             {ROLES.map((role, i) => (
               <p
@@ -412,10 +327,8 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* CENTER: photo (floats, with an orbiting ring of tech icons) */}
         <div className="hero-pop order-1 flex justify-center lg:order-none">
           <div className="hero-bob relative h-64 w-64 sm:h-72 sm:w-72 lg:h-80 lg:w-80">
-            {/* orbit ring, sits behind the photo */}
             <div aria-hidden="true" className="hero-orbit absolute -inset-8 hidden rounded-full border border-dashed border-primary/25 sm:block">
               {[
                 { Icon: SiReact,      pos: "left-1/2 top-0 -translate-x-1/2 -translate-y-1/2" },
@@ -431,9 +344,7 @@ export default function Hero() {
               ))}
             </div>
 
-            {/* glow behind photo */}
             <div className="absolute -inset-6 rounded-full bg-primary/15 blur-3xl" />
-            {/* offset outline, gently breathes */}
             <div className="hero-outline absolute inset-0 rounded-2xl border-2 border-primary" />
             <div className="relative h-full w-full overflow-hidden rounded-2xl bg-muted">
               <Image
@@ -448,7 +359,6 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* RIGHT: typing roles + buttons */}
         <div
           className="hero-rise order-3 text-center lg:order-none lg:pl-4 lg:text-left"
           style={{ animationDelay: "0.4s" }}
@@ -489,12 +399,11 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Social icons for mobile/tablet */}
         <div
           className="hero-fade order-4 flex justify-center gap-5 lg:hidden"
           style={{ animationDelay: "0.8s" }}
         >
-          <SocialIcons />
+          <SocialLinks className="text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:text-primary" />
         </div>
       </div>
     </div>

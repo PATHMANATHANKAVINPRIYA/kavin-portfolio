@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState, type ComponentType } from "react"
+import { type ComponentType } from "react"
 import { Braces, Cloud, Database, GitBranch, Monitor, Plug, Server, Webhook, Workflow } from "lucide-react"
 import {
   SiAngular,
@@ -27,12 +27,13 @@ import {
   SiHostinger,
 } from "react-icons/si"
 
+import { useReveal } from "@/lib/hooks"
+
 type IconType = ComponentType<{ size?: number; className?: string }>
 
 type Skill = {
   name: string
   icon: IconType
-  /** Brand colour shown on hover. Leave out for black/white logos. */
   color?: string
 }
 
@@ -111,34 +112,6 @@ const GROUPS: Group[] = [
   },
 ]
 
-/** True once, the first time the element scrolls into view. */
-function useReveal<T extends HTMLElement>() {
-  const ref = useRef<T>(null)
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    if (typeof IntersectionObserver === "undefined") {
-      setVisible(true)
-      return
-    }
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true)
-          io.disconnect()
-        }
-      },
-      { threshold: 0.3, rootMargin: "0px 0px -5% 0px" }
-    )
-    io.observe(el)
-    return () => io.disconnect()
-  }, [])
-
-  return { ref, visible }
-}
-
 function SkillItem({ skill, delay, visible }: { skill: Skill; delay: number; visible: boolean }) {
   const { icon: Icon, name, color } = skill
 
@@ -155,7 +128,6 @@ function SkillItem({ skill, delay, visible }: { skill: Skill; delay: number; vis
       />
       <span className="relative text-xs font-medium text-surface-foreground">
         {name}
-        {/* Underline grows on hover */}
         <span
           aria-hidden
           className="absolute -bottom-1 left-0 h-px w-0 bg-primary transition-all duration-300 group-hover:w-full"
@@ -166,11 +138,13 @@ function SkillItem({ skill, delay, visible }: { skill: Skill; delay: number; vis
 }
 
 function SkillRow({ group }: { group: Group }) {
-  const { ref, visible } = useReveal<HTMLDivElement>()
+  const { ref, visible } = useReveal<HTMLDivElement>({
+    threshold: 0.3,
+    rootMargin: "0px 0px -5% 0px",
+  })
 
   return (
     <div ref={ref} className="relative py-4 md:py-5">
-      {/* Divider line draws from the left */}
       <span
         aria-hidden
         className={`absolute left-0 top-0 h-px w-full origin-left bg-border transition-transform duration-700 ease-out motion-reduce:transition-none ${visible ? "scale-x-100" : "scale-x-0"
@@ -178,7 +152,6 @@ function SkillRow({ group }: { group: Group }) {
       />
 
       <div className="grid gap-5 md:grid-cols-[12rem_1fr] md:gap-10">
-        {/* Category */}
         <div
           className={`flex items-center gap-3 transition-all duration-500 ease-out motion-reduce:transition-none ${visible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
             }`}
@@ -189,7 +162,6 @@ function SkillRow({ group }: { group: Group }) {
           <h3 className="text-base font-semibold text-surface-foreground">{group.category}</h3>
         </div>
 
-        {/* Skills */}
         <ul className="flex flex-wrap items-center gap-x-9 gap-y-5">
           {group.skills.map((skill, i) => (
             <SkillItem key={skill.name} skill={skill} delay={150 + i * 70} visible={visible} />
@@ -252,7 +224,6 @@ export default function Skills() {
         {GROUPS.map((group) => (
           <SkillRow key={group.category} group={group} />
         ))}
-        {/* Closing line */}
         <span aria-hidden className="absolute bottom-0 left-0 h-px w-full bg-border" />
       </div>
 
