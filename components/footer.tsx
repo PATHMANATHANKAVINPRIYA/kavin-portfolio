@@ -200,17 +200,20 @@ export default function Footer() {
       </div>
 
       <div ref={ref} className="relative z-10 mx-auto max-w-6xl px-6 pb-1 pt-10">
-        <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
-          <div {...rise(0)}>
-            <div className="-my-3 flex justify-center md:justify-start">
+        <div className="grid gap-10 sm:grid-cols-2 sm:gap-12 lg:grid-cols-[1.4fr_1fr_1fr]">
+          <div
+            {...rise(0)}
+            className={`${rise(0).className} flex flex-col items-center sm:col-span-2 md:items-start lg:col-span-1`}
+          >
+            <div className="-my-3">
               <Logo size={160} />
             </div>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-sm text-center text-sm leading-relaxed text-muted-foreground md:text-left">
               Full-stack developer building modern, scalable web applications —
               from responsive frontends to robust backends and deployment pipelines.
             </p>
 
-            <div className="mt-3 flex flex-wrap gap-3">
+            <div className="mt-3 flex flex-wrap justify-center gap-3 md:justify-start">
               {SOCIALS.map(({ label, href, Icon }) => (
                 <a
                   key={label}
@@ -257,7 +260,7 @@ export default function Footer() {
                 />
               </a>
 
-              <p className="mt-4 inline-flex items-center gap-2 font-mono text-xs text-muted-foreground">
+              <p className="mt-4 flex items-center gap-2 font-mono text-xs text-muted-foreground">
                 <MapPin size={14} className="text-primary" />
                 Sri Lanka
               </p>
@@ -266,7 +269,7 @@ export default function Footer() {
         </div>
 
         <div
-          className={`mt-14 flex flex-col items-center justify-between gap-5 border-t border-border pt-6 sm:flex-row ${bottomBarRise.className}`}
+          className={`mt-10 flex flex-col items-center justify-between gap-5 border-t border-border pt-6 sm:flex-row sm:mt-14 ${bottomBarRise.className}`}
           style={bottomBarRise.style}
         >
           <div className="text-center sm:text-left">

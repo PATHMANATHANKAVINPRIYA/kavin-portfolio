@@ -1,7 +1,6 @@
 "use client";
 
 import { useLayoutEffect, useState, useEffect } from "react";
-import Image from "next/image";
 
 const STORAGE_KEY = "global-loader-played";
 const DURATION = 2500;
@@ -17,6 +16,7 @@ export default function GlobalLoader() {
     } catch {}
 
     if (alreadyPlayed) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync read of sessionStorage must set phase before paint
       setPhase("hidden");
       document.documentElement.setAttribute("data-loader", "off");
       return;
@@ -68,13 +68,14 @@ export default function GlobalLoader() {
 
         {/* GIF in center */}
         <div className="rounded-full bg-white/10 p-1">
-          <Image
-            src="/loading.gif"
-            alt="loading"
-            width={160}
-            height={160}
-            className="rounded-full object-contain"
-            unoptimized
+          <video
+            src="/loading.mp4"
+            className="h-40 w-40 rounded-full object-cover"
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
           />
         </div>
       </div>
