@@ -42,6 +42,8 @@ const PROJECTS: Project[] = [
       "A production marketing website built for a company, with a mega menu, animated sections, a payments landing page and an AI assistant chatbot, deployed with Docker on a VPS.",
     stack: ["Next.js", "TypeScript", "Docker"],
     // link: "https://company-site.com",
+
+    
     // linkType: "live",
   },
   {
