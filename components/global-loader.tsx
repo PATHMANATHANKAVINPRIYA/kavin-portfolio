@@ -1,15 +1,14 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useState, useEffect } from "react";
 
 const STORAGE_KEY = "global-loader-played";
-const MAX_DURATION = 8000;
+const DURATION = 2500;
 const FADE_DURATION = 600;
 
 export default function GlobalLoader() {
   const [phase, setPhase] = useState<"visible" | "fading" | "hidden">("visible");
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const doneRef = useRef(false);
+  const [progress, setProgress] = useState(0);
 
   useLayoutEffect(() => {
     let alreadyPlayed = false;
@@ -28,53 +27,85 @@ export default function GlobalLoader() {
       sessionStorage.setItem(STORAGE_KEY, "1");
     } catch {}
 
-    const video = videoRef.current;
-    video?.play().catch(() => {});
-
-    let fadeTimer: number | undefined;
-    const finish = () => {
-      if (doneRef.current) return;
-      doneRef.current = true;
-      window.clearTimeout(maxTimer);
-      document.body.style.overflow = "";
-      setPhase("fading");
-      fadeTimer = window.setTimeout(() => setPhase("hidden"), FADE_DURATION);
-    };
-
-    const maxTimer = window.setTimeout(finish, MAX_DURATION);
-    video?.addEventListener("ended", finish);
-
-    function onEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") finish();
-    }
-    window.addEventListener("keydown", onEscape);
-
     return () => {
-      window.clearTimeout(maxTimer);
-      window.clearTimeout(fadeTimer);
       document.body.style.overflow = "";
-      window.removeEventListener("keydown", onEscape);
-      video?.removeEventListener("ended", finish);
     };
   }, []);
 
+  useEffect(() => {
+    if (phase !== "visible") return;
+
+    const start = performance.now();
+    let raf: number;
+
+    const tick = (now: number) => {
+      const elapsed = now - start;
+      const pct = Math.min(100, Math.round((elapsed / DURATION) * 100));
+      setProgress(pct);
+
+      if (pct < 100) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        document.body.style.overflow = "";
+        setPhase("fading");
+        setTimeout(() => setPhase("hidden"), FADE_DURATION);
+      }
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [phase]);
+
   if (phase === "hidden") return null;
+
+  const radius = 54;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (progress / 100) * circumference;
 
   return (
     <div
       data-global-loader
       aria-hidden
-      className={`fixed inset-0 z-[100] flex items-center justify-center bg-black transition-opacity duration-500 ${
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black transition-opacity duration-500 ${
         phase === "fading" ? "opacity-0" : "opacity-100"
       }`}
     >
-      <video
-        ref={videoRef}
-        src="/loading.mp4"
-        playsInline
-        preload="auto"
-        className="max-h-[80vh] max-w-[80vw] object-contain"
-      />
+      {/* Spinning ring */}
+      <div className="relative flex items-center justify-center">
+        <svg width="140" height="140" className="-rotate-90">
+          {/* track */}
+          <circle
+            cx="70" cy="70" r={radius}
+            fill="none"
+            stroke="#1a2e1a"
+            strokeWidth="8"
+          />
+          {/* progress arc */}
+          <circle
+            cx="70" cy="70" r={radius}
+            fill="none"
+            stroke="#a3e635"
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            style={{ transition: "stroke-dashoffset 0.05s linear" }}
+          />
+        </svg>
+
+        {/* percentage in center */}
+        <span
+          className="absolute text-2xl font-bold tabular-nums"
+          style={{ color: "#a3e635" }}
+        >
+          {progress}%
+        </span>
+      </div>
+
+      {/* label */}
+      <p className="mt-4 text-sm tracking-widest uppercase text-white/50">
+        Loading
+      </p>
     </div>
   );
 }
