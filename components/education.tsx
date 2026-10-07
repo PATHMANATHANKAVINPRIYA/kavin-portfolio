@@ -26,7 +26,7 @@ function EducationItem({ item }: { item: Education }) {
   const years = item.end - item.start
 
   return (
-    <article className="group grid gap-4 border-b border-border py-8 transition-colors duration-300 hover:bg-primary/[0.03] md:grid-cols-[12rem_1fr] md:gap-10 md:py-10">
+    <article className="group grid gap-4 item border-b border-border py-8 transition-colors duration-300 hover:bg-primary/[0.03] md:grid-cols-[12rem_1fr] md:gap-10 md:py-10 text-center items-center">
       <div>
         <p className="font-mono text-sm text-primary">
           {item.start} — {item.end}
@@ -36,14 +36,10 @@ function EducationItem({ item }: { item: Education }) {
         </p>
       </div>
 
-      <div className="relative pl-6">
-        <span
-          aria-hidden
-          className="absolute left-0 top-0 h-full w-0.5 rounded-full bg-primary/40 transition-colors duration-300 group-hover:bg-primary"
-        />
+      <div className="relative">
         <h4 className="text-xl font-medium leading-snug text-surface-foreground md:text-2xl">{item.degree}</h4>
         <p className="mt-2 text-base leading-relaxed text-muted-foreground">{item.institution}</p>
-        <p className="mt-3 inline-flex items-center gap-1.5 font-mono text-sm text-muted-foreground">
+        <p className="mt-3 inline-flex items-center justify-center gap-1.5 font-mono text-sm text-muted-foreground">
           <MapPin size={14} className="text-primary" />
           {item.location}
         </p>
